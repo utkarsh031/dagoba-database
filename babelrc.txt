@@ -1,0 +1,13 @@
+/// A transpiler, since our code uses ES6 modules but Jest needs CommonJS.
+{
+  "presets": [
+    [
+      "@babel/preset-env",
+      {
+        "targets": {
+          "node": "current"
+        }
+      }
+    ]
+  ]
+}

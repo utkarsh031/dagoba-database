@@ -1,9 +1,10 @@
-
+///Pipetypes - All query operations
 
 import { makeGremlin, goToVertex, objectFilter, filterEdges, error } from './helpers.js';
 
 const Pipetypes = {};
 
+///Add a pipetype
 function addPipetype(name, handler) {
   Pipetypes[name] = handler;
 
@@ -12,6 +13,7 @@ function addPipetype(name, handler) {
   };
 }
 
+///Get a pipetype by name
 function getPipetype(name) {
   const pipetype = Pipetypes[name];
 
@@ -22,10 +24,12 @@ function getPipetype(name) {
   return pipetype || fauxPipetype;
 }
 
+///Default pipetype (pass-through)
 function fauxPipetype(_, __, maybeGremlin) {
   return maybeGremlin || 'pull';
 }
 
+///Simple traversal helper (for in/out)
 function simpleTraversal(dir) {
   const findMethod = dir === 'out' ? 'findOutEdges' : 'findInEdges';
   const edgeList = dir === 'out' ? '_in' : '_out';
@@ -49,6 +53,9 @@ function simpleTraversal(dir) {
   };
 }
 
+///Register all pipetypes
+
+///Vertex pipetype - starts query at vertices
 addPipetype('vertex', function (graph, args, maybeGremlin, state) {
   if (!state.vertices) {
     state.vertices = graph.findVertices(args);
@@ -62,10 +69,13 @@ addPipetype('vertex', function (graph, args, maybeGremlin, state) {
   return makeGremlin(vertex, maybeGremlin && maybeGremlin.state);
 });
 
+///Out pipetype - traverse outgoing edges
 addPipetype('out', simpleTraversal('out'));
 
+///In pipetype - traverse incoming edges
 addPipetype('in', simpleTraversal('in'));
 
+///Property pipetype - extract property from vertex
 addPipetype('property', function (graph, args, gremlin, state) {
   if (!gremlin) return 'pull';
 
@@ -73,6 +83,7 @@ addPipetype('property', function (graph, args, gremlin, state) {
   return gremlin.result == null ? false : gremlin;
 });
 
+///Unique pipetype - filter out duplicate vertices
 addPipetype('unique', function (graph, args, gremlin, state) {
   if (!gremlin) return 'pull';
 
@@ -83,6 +94,7 @@ addPipetype('unique', function (graph, args, gremlin, state) {
   return gremlin;
 });
 
+///Filter pipetype - filter gremlins by criteria
 addPipetype('filter', function (graph, args, gremlin, state) {
   if (!gremlin) return 'pull';
 
@@ -102,6 +114,7 @@ addPipetype('filter', function (graph, args, gremlin, state) {
   return gremlin;
 });
 
+///Take pipetype - limit number of results
 addPipetype('take', function (graph, args, gremlin, state) {
   state.taken = state.taken || 0;
 
@@ -116,6 +129,7 @@ addPipetype('take', function (graph, args, gremlin, state) {
   return 'done';
 });
 
+///As pipetype - label current vertex
 addPipetype('as', function (graph, args, gremlin, state) {
   if (!gremlin) return 'pull';
 
@@ -125,12 +139,14 @@ addPipetype('as', function (graph, args, gremlin, state) {
   return gremlin;
 });
 
+///Back pipetype - jump to labeled vertex
 addPipetype('back', function (graph, args, gremlin, state) {
   if (!gremlin) return 'pull';
 
   return goToVertex(gremlin, gremlin.state.as[args[0]]);
 });
 
+///Except pipetype - filter out labeled vertex
 addPipetype('except', function (graph, args, gremlin, state) {
   if (!gremlin) return 'pull';
 
@@ -141,6 +157,7 @@ addPipetype('except', function (graph, args, gremlin, state) {
   return gremlin;
 });
 
+///Merge pipetype - collect multiple labeled vertices
 addPipetype('merge', function (graph, args, gremlin, state) {
   if (!gremlin) return 'pull';
 
@@ -155,6 +172,7 @@ addPipetype('merge', function (graph, args, gremlin, state) {
   return makeGremlin(vertex, gremlin.state);
 });
 
+///MaxDepth pipetype - limit traversal depth
 addPipetype('maxDepth', function (graph, args, gremlin, state) {
   if (!gremlin) return 'pull';
 

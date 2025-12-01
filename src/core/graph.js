@@ -1,15 +1,17 @@
-
+///Main graph structure and methods
 
 const Graph = {
-
+  ///Add multiple vertices
   addVertices(vs) {
     vs.forEach(v => this.addVertex(v));
   },
 
+  ///Add multiple edges
   addEdges(es) {
     es.forEach(e => this.addEdge(e));
   },
 
+  ///Add a single vertex to the graph
   addVertex(vertex) {
     if (vertex._id == null) {
       vertex._id = this.autoId++;
@@ -25,12 +27,13 @@ const Graph = {
     return vertex._id;
   },
 
+  ///Add a single edge
   addEdge(edge) {
     edge._in = this.findVertexById(edge._in);
     edge._out = this.findVertexById(edge._out);
 
     if (!(edge._in && edge._out)) {
-
+      // Fixed the typo here
       return error("That edge's " + (edge._in ? 'out' : 'in') + " vertex wasn't found");
     }
 
@@ -39,6 +42,7 @@ const Graph = {
 
     this.edges.push(edge);
 
+    // Index edges
     this.inEdgeIndex = this.inEdgeIndex || {};
     this.outEdgeIndex = this.outEdgeIndex || {};
 
@@ -49,18 +53,22 @@ const Graph = {
     this.outEdgeIndex[edge._out._id].push(edge);
   },
 
+  ///Find incoming edges for a vertex
   findInEdges(vertex) {
     return vertex._in;
   },
 
+  ///Find outgoing edges for a vertex
   findOutEdges(vertex) {
     return vertex._out;
   },
 
+  ///Find vertex by ID
   findVertexById(id) {
     return this.vertexIndex[id];
   },
 
+  ///Find vertices matching criteria
   findVertices(args) {
     if (typeof args[0] === 'object') {
       return this.searchVertices(args[0]);
@@ -73,6 +81,7 @@ const Graph = {
     return this.findVerticesByIds(args);
   },
 
+  ///Find vertices by IDs
   findVerticesByIds(ids) {
     if (ids.length === 1) {
       const vertex = this.findVertexById(ids[0]);
@@ -82,18 +91,21 @@ const Graph = {
     return ids.map(id => this.findVertexById(id)).filter(Boolean);
   },
 
+  ///Search vertices by properties
   searchVertices(filter) {
     return this.vertices.filter(vertex => {
       return objectFilter(vertex, filter);
     });
   },
 
+  ///Query initializer - starts a query from this graph
   v(...args) {
     const query = createQuery(this);
     query.add('vertex', args);
     return query;
   },
 
+  ///Find shortest path between two vertices (BFS)
   findShortestPath(fromId, toId) {
     const queue = [{ vertex: this.findVertexById(fromId), path: [] }];
     const visited = new Set();
@@ -119,11 +131,13 @@ const Graph = {
     return null;
   },
 
+  ///Convert graph to string for persistence
   toString() {
     return jsonify(this);
   }
 };
 
+///Factory function to create graphs
 function createGraph(V, E) {
   const graph = Object.create(Graph);
 
@@ -132,6 +146,7 @@ function createGraph(V, E) {
   graph.vertexIndex = {};
   graph.autoId = 1;
 
+  ///Initialize edge indices
   graph.inEdgeIndex = {};
   graph.outEdgeIndex = {};
 
@@ -141,8 +156,10 @@ function createGraph(V, E) {
   return graph;
 }
 
+///Helper imports
 let error, objectFilter, jsonify, createQuery;
 
+///Setter function to inject dependencies
 function setGraphDependencies(deps) {
   error = deps.error;
   objectFilter = deps.objectFilter;

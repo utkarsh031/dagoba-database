@@ -1,10 +1,12 @@
+///Helper functions used throughout the system
 
-
+///Error handler
 function error(msg) {
   console.error(msg);
   return false;
 }
 
+///Create a gremlin
 function makeGremlin(vertex, state) {
   return {
     vertex: vertex,
@@ -12,10 +14,12 @@ function makeGremlin(vertex, state) {
   };
 }
 
+///Move gremlin to a new vertex
 function goToVertex(gremlin, vertex) {
   return makeGremlin(vertex, gremlin.state);
 }
 
+///Filter object by properties
 function objectFilter(thing, filter) {
   for (const key in filter) {
     if (thing[key] !== filter[key]) {
@@ -25,6 +29,7 @@ function objectFilter(thing, filter) {
   return true;
 }
 
+///Filter edges based on criteria
 function filterEdges(filter) {
   return function (edge) {
     if (!filter) return true;
@@ -41,6 +46,7 @@ function filterEdges(filter) {
   };
 }
 
+///Extend list with defaults
 function extend(list, defaults) {
   return Object.keys(defaults).reduce((acc, key) => {
     if (typeof list[key] !== 'undefined') return acc;
@@ -49,6 +55,7 @@ function extend(list, defaults) {
   }, list);
 }
 
+///Clean vertex for JSON serialization
 function cleanVertex(key, value) {
   if (key === '_in' || key === '_out') {
     return undefined;
@@ -56,6 +63,7 @@ function cleanVertex(key, value) {
   return value;
 }
 
+///Clean edge for JSON serialization
 function cleanEdge(key, value) {
   if (key === '_in' || key === '_out') {
     return value._id;
@@ -63,6 +71,7 @@ function cleanEdge(key, value) {
   return value;
 }
 
+///Convert graph to JSON string
 function jsonify(graph) {
   return (
     '{"V":' +

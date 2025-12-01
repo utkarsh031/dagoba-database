@@ -1,21 +1,19 @@
-///Query - Query execution system
+
 
 const Query = {
-  ///Add a step to the query program
+
   add(pipetype, args) {
     const step = [pipetype, args];
     this.program.push(step);
     return this;
   },
 
-  ///Another way to start a vertex query (alternative to graph.v())
   v() {
     return this.add('vertex', Array.prototype.slice.call(arguments));
   },
 
-  ///Execute the query
   run() {
-    ///Apply transformers to optimize the query
+
     this.program = transform(this.program);
 
     const max = this.program.length - 1;
@@ -25,7 +23,7 @@ const Query = {
     let pc = max;
 
     while (done < max) {
-      ///Apply transformers
+
       const step = this.program[pc];
       const state = (this.state[pc] = this.state[pc] || {});
       const pipetype = getPipetype(step[0]);
@@ -64,7 +62,6 @@ const Query = {
   }
 };
 
-///Factory function to create queries
 function createQuery(graph) {
   const query = Object.create(Query);
 
@@ -76,7 +73,6 @@ function createQuery(graph) {
   return query;
 }
 
-///Dependencies
 let getPipetype, transform;
 
 function setQueryDependencies(deps) {

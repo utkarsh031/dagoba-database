@@ -186,7 +186,7 @@ MIT
 
 ## Author
 
-Vyas Giri
+Utkarsh Dubey
 
 
 
